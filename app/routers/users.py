@@ -1,6 +1,6 @@
 from typing import Sequence
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 
 from app.data.db import get_session
 from app.models.user import User
@@ -49,6 +49,16 @@ def create_user(
     session.commit()
     session.refresh(user)
     return user
+
+@router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
+def delete_all_users(*, session: Session = Depends(get_session)):
+    """
+    DELETE /users
+    Elimina tutti gli utenti.
+    """
+    session.execute(delete(User))
+    session.commit()
+    return
 
 
 @router.get("/{username}", response_model=User)
