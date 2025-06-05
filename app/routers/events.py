@@ -135,7 +135,6 @@ def delete_all_events(*, session: Session = Depends(get_session)):
     DELETE /events
     Elimina tutti gli eventi.
     """
-    # Correzione: usare `execute(delete(Event))` invece di `exec(delete(Event))`
     session.execute(delete(Event))
     session.commit()
     return
@@ -156,13 +155,13 @@ def register_user_to_event(
         "name": "string",
         "email": "string"
       }
-    L’API esegue:
-      1. Verifica che l’evento esista (404 altrimenti).
-      2. Se l’utente non esiste → lo crea.
-      3. Se l’utente esiste già → lo riutilizza.
+    L'API esegue:
+      1. Verifica che l'evento esista (404 altrimenti).
+      2. Se l'utente non esiste → lo crea.
+      3. Se l'utente esiste già → lo riutilizza.
       4. Inserisce in Registration (se non esiste già).
     """
-    # 1. Controlla che l’evento esista
+    # 1. Controlla che l'evento esista
     db_event = session.get(Event, event_id)
     if not db_event:
         raise HTTPException(
@@ -170,7 +169,7 @@ def register_user_to_event(
             detail="Evento non trovato"
         )
 
-    # 2. Controlla se l’utente esiste già (o crealo)
+    # 2. Controlla se l'utente esiste già (o crealo)
     username = user_data.get("username")
     if not username:
         raise HTTPException(
