@@ -1,0 +1,21 @@
+/* Custom styles for the Event Manager website */
+
+body {
+  background-color: #f8f9fa;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.navbar-brand {
+  font-weight: bold;
+}
+
+.container {
+  padding-top: 20px;
+}
+
+.footer {
+  text-align: center;
+  font-size: 0.9em;
+  color: #6c757d;
+  margin-top: 40px;
+}
