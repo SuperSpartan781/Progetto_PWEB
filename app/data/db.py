@@ -50,11 +50,6 @@ def init_database() -> None:
                 session.add(event)
             session.commit()
 
-            # (Se lo desideri, puoi aggiungere anche registrazioni fittizie qui)
-
-            session.commit()
-
-
 def get_session():
     with Session(engine) as session:
         yield session
