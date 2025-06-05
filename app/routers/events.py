@@ -1,17 +1,21 @@
-from typing import List
+from typing import Sequence
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 from datetime import datetime
 
 from app.data.db import get_session
 from app.models.event import Event
-# Se vuoi rendere disponibile solo parte dei campi, puoi definire un Pydantic model a parte;
-# qui, per semplicità, restituiamo l'intero modello Event.
+from app.models.user import User  # per la parte di register
+from app.models.registration import Registration
 
 router = APIRouter(prefix="/events", tags=["events"])
 
-@router.get("/", response_model=List[Event])
-def get_all_events(*, session: Session = Depends(get_session)) -> List[Event]:
+
+@router.get("/", response_model=Sequence[Event])
+def get_all_events(
+    *,
+    session: Session = Depends(get_session)
+) -> Sequence[Event]:
     """
     GET /events
     Restituisce la lista di tutti gli eventi esistenti.
@@ -19,8 +23,13 @@ def get_all_events(*, session: Session = Depends(get_session)) -> List[Event]:
     events = session.exec(select(Event)).all()
     return events
 
+
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=Event)
-def create_event(*, session: Session = Depends(get_session), event: Event) -> Event:
+def create_event(
+    *,
+    session: Session = Depends(get_session),
+    event: Event
+) -> Event:
     """
     POST /events
     Crea un nuovo evento. Il JSON di input deve contenere:
@@ -43,9 +52,12 @@ def create_event(*, session: Session = Depends(get_session), event: Event) -> Ev
     session.refresh(db_event)
     return db_event
 
+
 @router.get("/{event_id}", response_model=Event)
 def get_event_by_id(
-    *, session: Session = Depends(get_session), event_id: int
+    *,
+    session: Session = Depends(get_session),
+    event_id: int
 ) -> Event:
     """
     GET /events/{id}
@@ -59,9 +71,11 @@ def get_event_by_id(
         )
     return db_event
 
+
 @router.put("/{event_id}", response_model=Event)
 def update_event(
-    *, session: Session = Depends(get_session),
+    *,
+    session: Session = Depends(get_session),
     event_id: int,
     updated: Event
 ) -> Event:
@@ -93,14 +107,16 @@ def update_event(
     session.refresh(db_event)
     return db_event
 
+
 @router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_event_by_id(
-    *, session: Session = Depends(get_session), event_id: int
+    *,
+    session: Session = Depends(get_session),
+    event_id: int
 ):
     """
     DELETE /events/{id}
     Elimina l'evento con ID = {event_id}.
-    (Opzionale secondo README)
     """
     db_event = session.get(Event, event_id)
     if not db_event:
@@ -112,24 +128,24 @@ def delete_event_by_id(
     session.commit()
     return
 
+
 @router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
 def delete_all_events(*, session: Session = Depends(get_session)):
     """
     DELETE /events
     Elimina tutti gli eventi.
-    (Opzionale secondo README)
     """
-    # Se vuoi eliminare tutti gli eventi in un colpo:
-    session.exec(select(Event).delete())
+    # Correzione: usare `execute(delete(Event))` invece di `exec(delete(Event))`
+    session.execute(delete(Event))
     session.commit()
     return
+
 
 @router.post("/{event_id}/register", status_code=status.HTTP_201_CREATED)
 def register_user_to_event(
     *,
     session: Session = Depends(get_session),
     event_id: int,
-    # JSON di input: { "username": "string", "name": "string", "email": "string" }
     user_data: dict
 ):
     """
@@ -140,13 +156,11 @@ def register_user_to_event(
         "name": "string",
         "email": "string"
       }
-    → L’API interna dovrebbe:
-      1. Verificare che l’evento con event_id esista (altrimenti 404).
-      2. Verificare se l’utente esiste già nella tabella users:
-         - Se non esiste → crearlo (con lo stesso JSON ricevuto).
-         - Se esiste → ignorare (non cambiano i dati, o fare un upsert).
-      3. Creare una riga nella tabella “registrations” (presumo esista già un modello e un router dedicato).
-    Se la registrazione esiste già, potresti restituire 400 o 409.
+    L’API esegue:
+      1. Verifica che l’evento esista (404 altrimenti).
+      2. Se l’utente non esiste → lo crea.
+      3. Se l’utente esiste già → lo riutilizza.
+      4. Inserisce in Registration (se non esiste già).
     """
     # 1. Controlla che l’evento esista
     db_event = session.get(Event, event_id)
@@ -156,8 +170,7 @@ def register_user_to_event(
             detail="Evento non trovato"
         )
 
-    # 2. Controlla se l’utente esiste già
-    from app.models.user import User  # import inline per evitare errori circolari
+    # 2. Controlla se l’utente esiste già (o crealo)
     username = user_data.get("username")
     if not username:
         raise HTTPException(
@@ -175,14 +188,12 @@ def register_user_to_event(
         session.commit()
         session.refresh(db_user)
 
-    # 3. Inserisci nella tabella registrations
-    #    Presupponiamo che esista già un modello Registration e un router che banca questo inserimento.
-    #    Se il modello Registration si chiama “Registration” e ha campi (username, event_id), 
-    #    possiamo fare:
-    from app.models.registration import Registration
+    # 3. Inserisci in Registration (se non esiste già)
     existing = session.exec(
-        select(Registration)
-        .where(Registration.username == username, Registration.event_id == event_id)
+        select(Registration).where(
+            Registration.username == username,
+            Registration.event_id == event_id
+        )
     ).first()
     if existing:
         raise HTTPException(

@@ -1,10 +1,13 @@
-from sqlmodel import create_engine, SQLModel, Session, select
+from sqlmodel import create_engine, SQLModel, Session
 from typing import Annotated
 from fastapi import Depends
 import os
 from faker import Faker
 from app.config import config
-# TODO: remember to import all the DB models here
+
+# Importa tutti i modelli ORM in modo che SQLModel.metadata sappia crearne le tabelle
+from app.models.user import User       # NOQA
+from app.models.event import Event     # NOQA
 from app.models.registration import Registration  # NOQA
 
 
@@ -16,12 +19,40 @@ engine = create_engine(sqlite_url, connect_args=connect_args, echo=True)
 
 def init_database() -> None:
     ds_exists = os.path.isfile(sqlite_file_name)
+    # Creazione di tutte le tabelle dichiarate nei modelli User, Event, Registration, ecc.
     SQLModel.metadata.create_all(engine)
+
     if not ds_exists:
+        # Se il database non esisteva, puoi popolarlo con dati fittizi (opzionale)
         f = Faker("it_IT")
         with Session(engine) as session:
-            # TODO: (optional) initialize the database with fake data
-            ...
+            # Esempio di popolamento fittizio (facoltativo)
+            # per i modelli User ed Event. Rimuovi o modifica secondo necessità.
+
+            # Creiamo qualche utente fittizio
+            for _ in range(5):
+                user = User(
+                    username=f.user_name(),
+                    name=f.name(),
+                    email=f.email()
+                )
+                session.add(user)
+            session.commit()
+
+            # Creiamo qualche evento fittizio
+            for _ in range(5):
+                event = Event(
+                    title=f.sentence(nb_words=3),
+                    description=f.paragraph(nb_sentences=2),
+                    date=f.date_time_this_year(),
+                    location=f.city()
+                )
+                session.add(event)
+            session.commit()
+
+            # (Se lo desideri, puoi aggiungere anche registrazioni fittizie qui)
+
+            session.commit()
 
 
 def get_session():
