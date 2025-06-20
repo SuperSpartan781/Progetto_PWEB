@@ -1,5 +1,3 @@
-# app/routers/registrations.py
-
 from typing import Sequence
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session, select

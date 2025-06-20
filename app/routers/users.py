@@ -17,8 +17,6 @@ def get_all_users(
     GET /users
     Restituisce la lista di tutti gli utenti.
     """
-    # session.exec(select(User)).all() restituisce effettivamente una List[User], 
-    # ma per Pylance è più sicuro dichiararlo come Sequence[User]
     users = session.exec(select(User)).all()
     return users
 
