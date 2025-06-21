@@ -19,17 +19,12 @@ engine = create_engine(sqlite_url, connect_args=connect_args, echo=True)
 
 def init_database() -> None:
     ds_exists = os.path.isfile(sqlite_file_name)
-    # Creazione di tutte le tabelle dichiarate nei modelli User, Event, Registration, ecc.
     SQLModel.metadata.create_all(engine)
 
     if not ds_exists:
-        # Se il database non esisteva, puoi popolarlo con dati fittizi (opzionale)
         f = Faker("it_IT")
         with Session(engine) as session:
-            # Esempio di popolamento fittizio (facoltativo)
-            # per i modelli User ed Event. Rimuovi o modifica secondo necessità.
 
-            # Creiamo qualche utente fittizio
             for _ in range(5):
                 user = User(
                     username=f.user_name(),
@@ -39,7 +34,6 @@ def init_database() -> None:
                 session.add(user)
             session.commit()
 
-            # Creiamo qualche evento fittizio
             for _ in range(5):
                 event = Event(
                     title=f.sentence(nb_words=3),

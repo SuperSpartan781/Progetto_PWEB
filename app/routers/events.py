@@ -96,7 +96,6 @@ def update_event(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Evento non trovato"
         )
-    # Aggiorno i campi
     db_event.title = updated.title
     db_event.description = updated.description
     db_event.date = updated.date

@@ -23,10 +23,8 @@ app.mount(
     name="static"
 )
 
-# Router già esistente per l’interfaccia front-end
 app.include_router(frontend.router)
 
-# **Nuovi router**
 from app.routers.users import router as users_router
 from app.routers.events import router as events_router
 from app.routers.registrations import router as registrations_router

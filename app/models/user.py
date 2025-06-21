@@ -1,5 +1,3 @@
-# app/models/user.py
-
 from sqlmodel import SQLModel, Field
 from typing import Optional
 
@@ -9,7 +7,7 @@ class User(SQLModel, table=True):
     La chiave primaria è `username`, stringa.
     """
     username: str = Field(
-        primary_key=True,  # è la PK
+        primary_key=True,
         index=True,
         description="Username univoco dell'utente"
     )
