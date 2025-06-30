@@ -160,7 +160,7 @@ def register_user_to_event(
       3. Se l'utente esiste già → lo riutilizza.
       4. Inserisce in Registration (se non esiste già).
     """
-    # 1. Controlla che l'evento esista
+    # controlla che l'evento esista
     db_event = session.get(Event, event_id)
     if not db_event:
         raise HTTPException(
@@ -168,7 +168,7 @@ def register_user_to_event(
             detail="Evento non trovato"
         )
 
-    # 2. Controlla se l'utente esiste già (o crealo)
+    # controlla se l'utente esiste già (o crealo)
     username = user_data.get("username")
     if not username:
         raise HTTPException(
@@ -186,7 +186,7 @@ def register_user_to_event(
         session.commit()
         session.refresh(db_user)
 
-    # 3. Inserisci in Registration (se non esiste già)
+    # inserisce in Registration (se non esiste già)
     existing = session.exec(
         select(Registration).where(
             Registration.username == username,

@@ -5,7 +5,7 @@ import os
 from faker import Faker
 from app.config import config
 
-# Importa tutti i modelli ORM in modo che SQLModel.metadata sappia crearne le tabelle
+# importa tutti i modelli ORM in modo che SQLModel.metadata sappia crearne le tabelle
 from app.models.user import User       # NOQA
 from app.models.event import Event     # NOQA
 from app.models.registration import Registration  # NOQA
