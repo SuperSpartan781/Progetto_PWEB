@@ -20,7 +20,7 @@ class Event(SQLModel, table=True):
         nullable=False,
         description="Descrizione dell'evento"
     )
-    date: datetime = Field(
+    date: datetime | str = Field(
         nullable=False,
         description="Data e ora dell'evento"
     )
