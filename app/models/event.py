@@ -1,4 +1,6 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Column
+from sqlalchemy import DateTime
+from datetime import datetime
 from typing import Optional
 
 class Event(SQLModel, table=True):
@@ -19,8 +21,8 @@ class Event(SQLModel, table=True):
         nullable=False,
         description="Descrizione dell'evento"
     )
-    date: str = Field(
-        nullable=False,
+    date: datetime = Field(
+        sa_column = Column(DateTime, nullable=False),
         description="Data e ora dell'evento"
     )
     location: str = Field(
