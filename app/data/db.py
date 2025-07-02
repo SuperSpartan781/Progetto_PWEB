@@ -38,7 +38,7 @@ def init_database() -> None:
                 event = Event(
                     title=f.sentence(nb_words=3),
                     description=f.paragraph(nb_sentences=2),
-                    date=f.date_time_this_year(),
+                    date=f.date_time_this_year().__str__(),
                     location=f.city()
                 )
                 session.add(event)
