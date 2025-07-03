@@ -1,11 +1,10 @@
 from sqlmodel import SQLModel, Field
-from datetime import datetime
 from typing import Optional
 
 class Event(SQLModel, table=True):
     """
     ORM per la tabella `events`.
-    L'ID viene generato automaticamente dal DB (INTEGER AUTOINCREMENT).
+    L'ID è auto-increment.
     """
     id: Optional[int] = Field(
         default=None,
@@ -28,3 +27,22 @@ class Event(SQLModel, table=True):
         nullable=False,
         description="Luogo dell'evento"
     )
+
+class EventCreate(SQLModel):
+    """
+    Payload per creare o aggiornare un evento.
+    """
+    title: str
+    description: str
+    date: str
+    location: str
+
+class EventRead(SQLModel):
+    """
+    Modello di risposta per un evento.
+    """
+    id: int
+    title: str
+    description: str
+    date: str
+    location: str

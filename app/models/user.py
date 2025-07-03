@@ -1,10 +1,9 @@
 from sqlmodel import SQLModel, Field
-from typing import Optional
 
 class User(SQLModel, table=True):
     """
     ORM per la tabella `users`.
-    La chiave primaria è `username`, stringa.
+    La chiave primaria è `username`.
     """
     username: str = Field(
         primary_key=True,
@@ -19,3 +18,19 @@ class User(SQLModel, table=True):
         nullable=False,
         description="Email dell'utente"
     )
+
+class UserCreate(SQLModel):
+    """
+    Payload per creare un nuovo utente.
+    """
+    username: str
+    name: str
+    email: str
+
+class UserRead(SQLModel):
+    """
+    Modello di risposta per un utente.
+    """
+    username: str
+    name: str
+    email: str
